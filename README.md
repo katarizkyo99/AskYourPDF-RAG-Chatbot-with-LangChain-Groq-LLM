@@ -3,7 +3,7 @@
 A Retrieval-Augmented Generation (RAG) conversational assistant built with **Streamlit**, **LangChain (LCEL)**, and **Groq Cloud API**. The application processes football player statistics from local PDF documents and answers user queries with domain-specific accuracy, minimizing LLM hallucinations.
 
 Live DEMO: 
-**Live Demo:** [(Football Stats Assistant (RAG Chatbot with LangChain & Groq)]([https://vehicle-detection-yolo-ocdwr4afznns6xwfsgd7na.streamlit.app/](https://chatbot-rag-for-file-pdf-using-langchain-and-groq-api-js9wvkow.streamlit.app/))
+**Live Demo:** [Football Stats Assistant (RAG Chatbot with LangChain & Groq)]([https://chatbot-rag-for-file-pdf-using-langchain-and-groq-api-js9wvkow.streamlit.app/]
 ---
 
 ## 🚀 Key Features
