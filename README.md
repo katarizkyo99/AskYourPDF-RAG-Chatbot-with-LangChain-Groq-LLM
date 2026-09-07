@@ -5,7 +5,7 @@ A Retrieval-Augmented Generation (RAG) conversational assistant built with **Str
 ---
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://chatbot-rag-for-file-pdf-using-langchain-and-groq-api-js9wvkow.streamlit.app/)
 
-**Live Demo:** [Football Stats Assistant (RAG Chatbot with LangChain & Groq](https://chatbot-rag-for-file-pdf-using-langchain-and-groq-api-js9wvkow.streamlit.app/)
+**Live Demo:** [Football Stats Assistant (RAG Chatbot with LangChain & Groq)](https://chatbot-rag-for-file-pdf-using-langchain-and-groq-api-js9wvkow.streamlit.app/)
 
 ## 🚀 Key Features
 
