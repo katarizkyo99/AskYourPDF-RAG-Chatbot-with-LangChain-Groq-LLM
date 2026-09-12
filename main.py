@@ -15,7 +15,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 
 load_dotenv()
 
-st.set_page_config(page_title="Football Stats Bot", page_icon="⚽", layout="centered")
+st.set_page_config(page_title="AskYourPDF", page_icon="📄", layout="centered")
 
 MAX_FILE_SIZE_MB = 2
 MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
@@ -71,8 +71,8 @@ def build_rag_chain(retriever, model_id: str, temperature: float):
     llm = ChatGroq(groq_api_key=api_key, model_name=model_id, temperature=temperature)
 
     prompt = ChatPromptTemplate.from_template(
-        """You are an expert chatbot in football. Answer the user question based only on the provided context.
-If you don't know the answer, just say that you don't know.
+        """You are a helpful assistant that answers questions based only on the provided document context.
+If the answer isn't in the context, say that you don't know instead of guessing.
 
 Context:
 {context}
@@ -128,9 +128,34 @@ with st.sidebar:
 
     st.caption(f"Active model: `{selected_model_id}`")
 
-# ---- Main title ----
-st.title("⚽ Football Stats Assistant")
-st.write("Upload football stats PDFs in the sidebar, then ask questions about them.")
+# ---- Main title (custom styled header) ----
+st.markdown(
+    """
+    <style>
+    .askyourpdf-header {
+        text-align: center;
+        padding: 0.5rem 0 1.5rem 0;
+    }
+    .askyourpdf-title {
+        font-size: 2.4rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, #2563eb, #06b6d4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.2rem;
+    }
+    .askyourpdf-subtitle {
+        color: #6b7280;
+        font-size: 1.05rem;
+    }
+    </style>
+    <div class="askyourpdf-header">
+        <div class="askyourpdf-title">📄 AskYourPDF</div>
+        <div class="askyourpdf-subtitle">Upload any PDF, ask anything about it.</div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 # ---- Build retriever (cached by file content, independent of model choice) ----
 retriever, error_msg = build_retriever(tuple(valid_files))
@@ -153,12 +178,12 @@ for message in st.session_state.messages:
                 for i, src in enumerate(message["sources"], start=1):
                     st.markdown(f"**Source {i}:**\n\n{src[:500]}{'...' if len(src) > 500 else ''}")
 
-if prompt_input := st.chat_input("Siapa pemain dengan gol terbanyak?"):
+if prompt_input := st.chat_input("What would you like to know about this document?"):
     st.chat_message("user").markdown(prompt_input)
     st.session_state.messages.append({"role": "user", "content": prompt_input})
 
     with st.chat_message("assistant"):
-        with st.spinner("Menganalisis statistik..."):
+        with st.spinner("Analyzing your document..."):
             start = time.time()
             retrieved_docs = retriever.invoke(prompt_input)
             response = rag_chain.invoke(prompt_input)
