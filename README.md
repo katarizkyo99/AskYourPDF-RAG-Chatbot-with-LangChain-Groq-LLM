@@ -1,7 +1,7 @@
 # 📄 AskYourPDF — RAG Chatbot with LangChain & Groq
 
 <!-- Ganti baris di bawah dengan screenshot aplikasi kamu -->
-![AskYourPDF Screenshot](./assets/screenshot.png)
+![AskYourPDF Screenshot](./assets/chatbot_result.png)
 
 A Retrieval-Augmented Generation (RAG) chatbot built with **Streamlit**, **LangChain (LCEL)**, and **Groq Cloud API**. Upload any PDF and ask questions about it — answers are grounded strictly in the document's content to minimize LLM hallucinations.
 
