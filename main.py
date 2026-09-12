@@ -1,5 +1,6 @@
 import os
 import time
+import tempfile
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -16,6 +17,9 @@ load_dotenv()
 
 st.set_page_config(page_title="Football Stats Bot", page_icon="⚽", layout="centered")
 
+MAX_FILE_SIZE_MB = 2
+MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+
 # ---- Available Groq models (checked against Groq's current production model list) ----
 AVAILABLE_MODELS = {
     "GPT-OSS 20B (fastest, default)": "openai/gpt-oss-20b",
@@ -30,17 +34,24 @@ def format_docs(docs):
 
 
 @st.cache_resource(show_spinner=False)
-def build_retriever(db_path: str = "./DB"):
-    """Load PDFs, split, embed, and build the FAISS retriever.
-    Cached separately from the LLM so switching models does not re-run embeddings.
+def build_retriever(uploaded_files):
+    """Build the FAISS retriever from uploaded PDF files.
+    Cached by Streamlit based on the uploaded files' content, so re-uploading
+    the exact same files won't trigger a rebuild.
     """
-    if not os.path.isdir(db_path) or not os.listdir(db_path):
-        return None, "No PDF files found in the './DB' folder. Add at least one PDF and restart the app."
+    if not uploaded_files:
+        return None, "Upload at least one PDF (max 2MB each) in the sidebar to get started."
 
-    loader = PyPDFDirectoryLoader(db_path)
-    docs = loader.load()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        for f in uploaded_files:
+            with open(os.path.join(tmpdir, f.name), "wb") as out:
+                out.write(f.getbuffer())
+
+        loader = PyPDFDirectoryLoader(tmpdir)
+        docs = loader.load()
+
     if not docs:
-        return None, "PDFs were found but no text could be extracted from them."
+        return None, "PDFs were uploaded but no text could be extracted from them."
 
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     final_documents = text_splitter.split_documents(docs[:20])
@@ -82,6 +93,24 @@ Answer:"""
 
 # ---- Sidebar ----
 with st.sidebar:
+    st.header("📄 Documents")
+    raw_uploads = st.file_uploader(
+        f"Upload PDF files (max {MAX_FILE_SIZE_MB}MB each)",
+        type="pdf",
+        accept_multiple_files=True,
+    )
+
+    valid_files = []
+    if raw_uploads:
+        for f in raw_uploads:
+            if f.size > MAX_FILE_SIZE_BYTES:
+                st.error(f"❌ **{f.name}** is {f.size / 1024 / 1024:.2f}MB — exceeds the {MAX_FILE_SIZE_MB}MB limit and was skipped.")
+            else:
+                valid_files.append(f)
+        if valid_files:
+            st.success(f"✅ {len(valid_files)} file(s) ready: " + ", ".join(f.name for f in valid_files))
+
+    st.divider()
     st.header("⚙️ Settings")
 
     selected_label = st.selectbox("Model", list(AVAILABLE_MODELS.keys()), index=0)
@@ -101,10 +130,10 @@ with st.sidebar:
 
 # ---- Main title ----
 st.title("⚽ Football Stats Assistant")
-st.write("Ask questions about football stats based on the documents in your database.")
+st.write("Upload football stats PDFs in the sidebar, then ask questions about them.")
 
-# ---- Build retriever (cached, independent of model choice) ----
-retriever, error_msg = build_retriever()
+# ---- Build retriever (cached by file content, independent of model choice) ----
+retriever, error_msg = build_retriever(tuple(valid_files))
 
 if error_msg:
     st.warning(error_msg)
