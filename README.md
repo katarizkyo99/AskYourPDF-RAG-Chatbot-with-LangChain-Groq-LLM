@@ -1,4 +1,4 @@
-# 📄 AskYourPDF: RAG Chatbot with LangChain & Groq
+# 📄 AskYourPDF: RAG Chatbot with LangChain & Groq LLM
 
 <!-- Ganti baris di bawah dengan screenshot aplikasi kamu -->
 ![AskYourPDF Screenshot](./assets/chatbot_result.png)
